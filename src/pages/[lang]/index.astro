@@ -1,0 +1,113 @@
+---
+import Base from '../../layouts/Base.astro';
+import Lattice from '../../components/Lattice.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { t, langPaths, type Lang } from '../../i18n/strings';
+import { href, products, articles, fmtDate } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const h = s.home;
+const latest = articles(lang).slice(0, 2);
+---
+<Base lang={lang} title={s.meta.homeTitle} description={s.meta.homeDesc}>
+  <section class="hero">
+    <Lattice />
+    <div class="wrap hero__in">
+      <span class="label label--aurum">{h.eyebrow}</span>
+      <h1 class="hero__title settle">{h.title}</h1>
+      <p class="lead">{h.sub}</p>
+      <div class="actions">
+        <a class="btn btn--primary" href={href(lang, 'products')}>{h.ctaPrimary} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href={href(lang, 'contact')}>{h.ctaSecondary}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split reveal">
+      <span class="label">{h.houseLabel}</span>
+      <div class="split__body">
+        <h2>{h.houseTitle}</h2>
+        <p class="lead">{h.houseBody}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head reveal"><span class="label">{h.principlesLabel}</span><h2>{h.principlesTitle}</h2></div>
+      <div class="grid-3">
+        {s.values.map((v) => (
+          <article class="card reveal"><h3>{v.title}</h3><p class="muted">{v.body}</p></article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head reveal"><span class="label">{h.productsLabel}</span><h2>{h.productsTitle}</h2></div>
+      <div class="grid-2">
+        {products.map((p) => <div class="reveal"><ProductCard lang={lang} product={p} /></div>)}
+        <div class="card card--quiet reveal"><span class="label">{h.nextProduct}</span><p class="quiet">{h.nextProductBody}</p></div>
+      </div>
+    </div>
+  </section>
+
+  {latest.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="section__head reveal"><span class="label">{s.nav.journal}</span></div>
+        <div class="grid-2">
+          {latest.map((a) => (
+            <a class="card reveal art" href={href(lang, `journal/${a.slug}`)}>
+              <span class="label">{s.journal.categories[a.category]} · {fmtDate(a.date, lang)}</span>
+              <h3>{a.title}</h3>
+              <p class="muted">{a.excerpt}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class="wrap split reveal">
+      <span class="label">{h.commitmentsLabel}</span>
+      <div class="split__body">
+        <h2>{h.commitmentsTitle}</h2>
+        <ul class="list-plain">{h.commitments.map((c) => <li>{c}</li>)}</ul>
+        <a class="link" href={href(lang, 'principles')}>{h.commitmentsLink} <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section closing">
+    <div class="wrap closing__in reveal">
+      <h2>{h.closingTitle}</h2>
+      <p class="lead">{h.closingBody}</p>
+      <div class="actions">
+        <a class="btn btn--primary" href={href(lang, 'journal')}>{h.closingJournal}</a>
+        <a class="btn" href={href(lang, 'contact')}>{h.ctaSecondary}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .hero { position: relative; min-height: min(100svh, 980px); display: flex; align-items: center; overflow: hidden; padding-block: 140px 96px; }
+  .hero__in { position: relative; display: grid; gap: 28px; }
+  .hero__title { font-size: var(--text-display); font-weight: 300; font-variation-settings: 'HEXP' 22; letter-spacing: -0.035em; line-height: 1; max-width: 11ch; }
+  :lang(ar) .hero__title { font-variation-settings: 'HEXP' 0; letter-spacing: 0; line-height: 1.25; font-size: calc(var(--text-display) * 0.9); }
+  @media (max-width: 759px) { .hero { align-items: flex-end; min-height: 100svh; } .hero__in { padding-top: 46vh; } }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 32px; }
+  .split__body { display: grid; gap: 24px; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
+  .card--quiet { background: transparent; border-style: dashed; align-content: space-between; min-height: 200px; }
+  .quiet { font-size: var(--text-h3); color: var(--color-text-muted); }
+  .art { text-decoration: none; }
+  .art:hover { border-color: var(--color-line-strong); }
+  .link { color: var(--color-ion); text-decoration: none; display: inline-flex; gap: 8px; width: fit-content; }
+  [dir='rtl'] .link .arrow { display: inline-block; transform: scaleX(-1); }
+  .closing__in { display: grid; gap: 24px; justify-items: start; }
+</style>

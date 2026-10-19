@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><mask id="MASKID"><rect width="100" height="100" fill="#fff"/><path d="M34 70V30l32 40V30" fill="none" stroke="#000" stroke-width="9" stroke-linejoin="miter"/></mask></defs><rect x="16" y="16" width="68" height="68" rx="16" fill="currentColor" mask="url(#MASKID)"/></svg>

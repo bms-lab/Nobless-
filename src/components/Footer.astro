@@ -1,0 +1,46 @@
+---
+import Logo from './Logo.astro';
+import { t, type Lang } from '../i18n/strings';
+import { href, site } from '../lib/content';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+const year = new Date().getFullYear();
+const socialNames: Record<string, string> = { instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', linkedin: 'LinkedIn', x: 'X' };
+const socials = Object.entries(site.social).filter(([, url]) => !!url);
+---
+<footer class="ftr">
+  <div class="wrap ftr__in">
+    <div class="ftr__brand">
+      <Logo size={22} />
+      <p class="muted">{s.footer.line}</p>
+    </div>
+    <nav aria-label={s.nav.footer} class="ftr__nav">
+      <a href={href(lang, 'company')}>{s.nav.company}</a>
+      <a href={href(lang, 'principles')}>{s.nav.principles}</a>
+      <a href={href(lang, 'products')}>{s.nav.products}</a>
+      <a href={href(lang, 'journal')}>{s.nav.journal}</a>
+      <a href={href(lang, 'contact')}>{s.nav.contact}</a>
+    </nav>
+    {socials.length > 0 && (
+      <ul class="ftr__social">
+        {socials.map(([k, url]) => <li><a href={url} rel="me noopener" target="_blank">{socialNames[k]}</a></li>)}
+      </ul>
+    )}
+    <div class="ftr__base">
+      <span><bdi dir="ltr">© {year} NOBLESS.</bdi>{site.sinceYear && ` ${s.footer.since} ${site.sinceYear}.`}</span>
+      <span class="ftr__legal"><a href={href(lang, 'privacy')}>{s.footer.privacy}</a><a href={href(lang, 'legal')}>{s.footer.legal}</a></span>
+    </div>
+  </div>
+</footer>
+<style>
+  .ftr { border-top: 1px solid var(--color-line); padding-block: 64px calc(32px + env(safe-area-inset-bottom, 0px)); }
+  .ftr__in { display: grid; gap: 40px; grid-template-columns: minmax(0, 1fr) auto; }
+  .ftr__brand { display: grid; gap: 16px; }
+  .ftr__nav, .ftr__social { display: flex; flex-wrap: wrap; gap: 24px; list-style: none; margin: 0; padding: 0; }
+  .ftr a { color: var(--color-text-muted); text-decoration: none; }
+  .ftr a:hover { color: var(--color-text); }
+  .ftr__base { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding-top: 24px; border-top: 1px solid var(--color-line); color: var(--color-text-muted); font-size: 0.875rem; }
+  .ftr__legal { display: flex; gap: 24px; }
+  @media (max-width: 700px) { .ftr__in { grid-template-columns: 1fr; } }
+</style>

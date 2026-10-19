@@ -1,0 +1,39 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { LANGS, t, type Lang } from '../../../i18n/strings';
+import { href, articles, fmtDate } from '../../../lib/content';
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) => articles(lang).map((a) => ({ params: { lang, slug: a.slug }, props: { a } })));
+}
+const lang = Astro.params.lang as Lang;
+const { a } = Astro.props;
+const s = t(lang);
+const j = s.journal;
+const { Content } = a;
+---
+<Base lang={lang} title={`${a.title} | NOBLESS Journal`} description={a.excerpt} path={`journal/${a.slug}/`} current="journal" noindex={a.isFallback}>
+  <article>
+    <header class="wrap page-head">
+      <a class="back" href={href(lang, 'journal')}><span class="arrow" aria-hidden="true">←</span> {j.back}</a>
+      <span class="label">{fmtDate(a.date, lang)} · {j.categories[a.category]}</span>
+      <h1 lang={a.isFallback ? 'en' : undefined}>{a.title}</h1>
+      <span class="status">{j.statusTags[a.status]}</span>
+      {a.isFallback && <p class="muted">{j.englishOnly}</p>}
+    </header>
+    <div class="wrap">
+      <div class="prose" lang={a.isFallback ? 'en' : undefined} dir={a.isFallback ? 'ltr' : undefined}><Content /></div>
+    </div>
+  </article>
+  <section class="section">
+    <div class="wrap actions">
+      <a class="btn btn--primary" href={href(lang, 'products')}>{s.home.ctaPrimary}</a>
+      <a class="btn" href={href(lang, 'contact')}>{s.home.ctaSecondary}</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .back { color: var(--color-text-muted); text-decoration: none; display: inline-flex; gap: 8px; width: fit-content; }
+  [dir='rtl'] .back .arrow { display: inline-block; transform: scaleX(-1); }
+  h1 { max-width: 20ch; }
+  .prose { padding-bottom: 64px; }
+</style>

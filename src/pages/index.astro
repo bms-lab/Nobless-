@@ -1,0 +1,22 @@
+---
+// Root: send visitors to their language, English by default.
+const canonical = new URL('/en/', Astro.site).toString();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NOBLESS</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta http-equiv="refresh" content="0; url=/en/" />
+    <script is:inline>
+      var l = (navigator.language || 'en').slice(0, 2);
+      location.replace('/' + (['fr', 'ar'].indexOf(l) > -1 ? l : 'en') + '/');
+    </script>
+    <style>body{background:#07080B;color:#EEF0F4;font-family:system-ui,sans-serif;padding:32px}a{color:#8CC8FF}</style>
+  </head>
+  <body><a href="/en/">NOBLESS</a></body>
+</html>

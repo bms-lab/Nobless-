@@ -1,0 +1,54 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, langPaths, type Lang } from '../../i18n/strings';
+import { href, site } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const c = s.company;
+---
+<Base lang={lang} title={s.meta.companyTitle} description={s.meta.companyDesc} path="company/" current="company">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{c.title}</span>
+    <h1 class="title">{site.sinceYear ? c.sinceLead(site.sinceYear) : c.lead}</h1>
+  </section>
+
+  <section class="wrap">
+    <div class="dl">
+      <div><span class="label">{c.missionLabel}</span><p class="lead">{c.mission}</p></div>
+      <div><span class="label">{c.visionLabel}</span><p class="lead">{c.vision}</p></div>
+      <div><span class="label">{c.todayLabel}</span><p class="lead">{c.today}</p></div>
+      <div><span class="label">{c.chooseLabel}</span><p class="lead">{c.choose}</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <span class="label">{c.principlesLabel}</span>
+      <div class="body">
+        <p class="lead">{s.values.map((v) => v.title).join(' · ')}</p>
+        <a class="link" href={href(lang, 'principles')}>{s.home.commitmentsLink} <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <span class="label">{c.headingLabel}</span>
+      <div class="body">
+        <p class="lead">{c.heading}</p>
+        <div class="actions">
+          <a class="btn btn--primary" href={href(lang, 'products')}>{s.home.ctaPrimary} <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn" href={href(lang, 'contact')}>{s.home.ctaSecondary}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .title { max-width: 22ch; font-size: var(--text-h2); line-height: 1.2; }
+  .link { color: var(--color-ion); text-decoration: none; display: inline-flex; gap: 8px; width: fit-content; }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 32px; }
+  .body { display: grid; gap: 32px; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,18 @@
+---
+// The symbol lives in src/brand/symbol.svg. Replace that one file to change the logo everywhere.
+import symbol from '../brand/symbol.svg?raw';
+interface Props { size?: number; wordmark?: boolean; class?: string }
+const { size = 24, wordmark = true, class: cls = '' } = Astro.props;
+const uid = 'lg' + Math.random().toString(36).slice(2, 8);
+const clean = symbol.replace(/<metadata>[\s\S]*?<\/metadata>/g, '').replace(/ xmlns:c2pa="[^"]*"/g, '');
+const svg = clean.replaceAll('MASKID', uid).replace('<svg ', `<svg width="${size}" height="${size}" aria-hidden="true" focusable="false" `);
+---
+<span class:list={['logo', cls]}>
+  <span class="logo__sym" set:html={svg} />
+  {wordmark && <span class="logo__wm">NOBLESS</span>}
+</span>
+<style>
+  .logo { direction: ltr; display: inline-flex; align-items: center; gap: 12px; color: var(--color-text); }
+  .logo__sym { display: inline-flex; }
+  .logo__wm { font-family: var(--font-sans); font-weight: 500; letter-spacing: 0.28em; font-size: 15px; margin-inline-end: -0.28em; }
+</style>

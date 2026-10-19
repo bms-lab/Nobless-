@@ -1,0 +1,22 @@
+---
+import { t, type Lang } from '../i18n/strings';
+import { href, type Product } from '../lib/content';
+interface Props { lang: Lang; product: Product }
+const { lang, product } = Astro.props;
+const s = t(lang);
+const copy = product[lang];
+---
+<a class="card pcard" href={href(lang, `products/${product.slug}`)}>
+  <span class={`status status--${product.status}`}>{s.status[product.status as keyof typeof s.status]}</span>
+  <h3>{product.name} <span class="pcard__by">{s.products.by}</span></h3>
+  <p class="muted">{copy.oneLiner}</p>
+  <span class="pcard__go">{s.products.view} <span class="arrow" aria-hidden="true">→</span></span>
+</a>
+<style>
+  .pcard { text-decoration: none; transition: border-color var(--dur-fast); gap: 16px; }
+  .pcard:hover { border-color: var(--color-line-strong); }
+  .pcard h3 { font-size: var(--text-h2); font-weight: 400; letter-spacing: -0.01em; }
+  .pcard__by { font-size: var(--text-label); font-family: var(--font-mono); color: var(--color-text-muted); letter-spacing: 0.08em; vertical-align: middle; }
+  .pcard__go { color: var(--color-ion); font-size: 0.95rem; display: inline-flex; gap: 8px; margin-top: 8px; }
+  [dir='rtl'] .arrow { display: inline-block; transform: scaleX(-1); }
+</style>

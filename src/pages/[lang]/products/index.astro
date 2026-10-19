@@ -1,0 +1,28 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ProductCard from '../../../components/ProductCard.astro';
+import { t, langPaths, type Lang } from '../../../i18n/strings';
+import { products } from '../../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+---
+<Base lang={lang} title={s.meta.productsTitle} description={s.meta.productsDesc} path="products/" current="products">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{s.products.title}</span>
+    <h1>{s.products.title}</h1>
+    <p class="lead">{s.products.lead}</p>
+  </section>
+  <section class="wrap legend" aria-hidden="true">
+    {(['live', 'development', 'exploring'] as const).map((k) => <span class={`status status--${k}`}>{s.status[k]}</span>)}
+  </section>
+  <section class="wrap grid-2 list">
+    {products.map((p) => <ProductCard lang={lang} product={p} />)}
+    <div class="card next"><span class="label">{s.home.nextProduct}</span><p class="muted">{s.home.nextProductBody}</p></div>
+  </section>
+</Base>
+<style>
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .list { padding-bottom: clamp(64px, 10vw, 160px); }
+  .next { background: transparent; border-style: dashed; }
+</style>
