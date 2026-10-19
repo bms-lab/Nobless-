@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../i18n/strings';
+const s = t('en');
+---
+<Base lang="en" title={s.meta.notFoundTitle} noindex>
+  <section class="wrap page-head">
+    <span class="label label--aurum">404</span>
+    <h1>{s.notFound.title}</h1>
+    <p class="lead">{s.notFound.body}</p>
+    <div class="actions">
+      <a class="btn btn--primary" href="/en/">{s.notFound.back}</a>
+      <a class="btn" href="/fr/">Français</a>
+      <a class="btn" href="/ar/" lang="ar">العربية</a>
+    </div>
+  </section>
+</Base>

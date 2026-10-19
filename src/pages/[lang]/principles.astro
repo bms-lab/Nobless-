@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, langPaths, type Lang } from '../../i18n/strings';
+import { href } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const c = s.company;
+---
+<Base lang={lang} title={s.meta.principlesTitle} description={s.meta.principlesDesc} path="principles/" current="principles">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{s.nav.principles}</span>
+    <h1>{s.home.principlesTitle}</h1>
+  </section>
+  <section class="wrap">
+    <div class="grid-3">
+      {s.values.map((v) => <article class="card"><h2 class="vt">{v.title}</h2><p class="muted">{v.body}</p></article>)}
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap split">
+      <h2 class="label">{c.commitmentsLabel}</h2>
+      <ul class="list-plain">{c.commitments.map((x) => <li>{x}</li>)}</ul>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap split">
+      <h2 class="label">{c.chooseLabel}</h2>
+      <div class="body">
+        <p class="lead">{c.choose}</p>
+        <div class="actions">
+          <a class="btn btn--primary" href={href(lang, 'products')}>{s.home.ctaPrimary} <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn" href={href(lang, 'contact')}>{s.home.ctaSecondary}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .vt { font-size: var(--text-h3); font-weight: 500; }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 32px; align-items: start; }
+  .body { display: grid; gap: 32px; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
+</style>

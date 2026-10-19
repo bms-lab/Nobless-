@@ -1,0 +1,76 @@
+---
+import Logo from './Logo.astro';
+import { LANGS, LANG_NAME, t, type Lang } from '../i18n/strings';
+import { href } from '../lib/content';
+interface Props { lang: Lang; path: string; current?: string; langs?: readonly Lang[] }
+const { lang, path, current = '', langs = LANGS } = Astro.props;
+const s = t(lang).nav;
+const items = [
+  { key: 'company', label: s.company },
+  { key: 'principles', label: s.principles },
+  { key: 'products', label: s.products },
+  { key: 'journal', label: s.journal },
+];
+---
+<a class="skip" href="#main">{s.skip}</a>
+<header class="hdr" data-hdr>
+  <div class="wrap hdr__in">
+    <a href={href(lang)} class="hdr__home" aria-label={s.home}><Logo size={22} /></a>
+    <nav class="hdr__nav" aria-label={s.main} id="site-nav" data-nav>
+      <ul>
+        {items.map((i) => (
+          <li><a href={href(lang, i.key)} aria-current={current === i.key ? 'page' : undefined}>{i.label}</a></li>
+        ))}
+        <li><a class="btn hdr__contact" href={href(lang, 'contact')} aria-current={current === 'contact' ? 'page' : undefined}>{s.contact}</a></li>
+      </ul>
+      <ul class="hdr__langs" aria-label={s.language}>
+        {langs.map((l) => (
+          <li><a href={`/${l}/${path}`} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined}>{l.toUpperCase()}<span class="sr">{LANG_NAME[l]}</span></a></li>
+        ))}
+      </ul>
+    </nav>
+    <button class="hdr__toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-toggle data-open={s.menu} data-close={s.close}>{s.menu}</button>
+  </div>
+</header>
+<style>
+  .skip { position: absolute; inset-inline-start: 16px; top: -100px; z-index: 100; background: var(--color-text); color: var(--color-bg); padding: 8px 16px; border-radius: 999px; }
+  .skip:focus { top: 16px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hdr { position: fixed; inset: 0 0 auto; z-index: 50; padding-top: env(safe-area-inset-top, 0px); transition: background var(--dur-base), border-color var(--dur-base); border-bottom: 1px solid transparent; }
+  .hdr.is-scrolled { background: color-mix(in srgb, var(--color-bg) 88%, transparent); backdrop-filter: blur(10px); border-color: var(--color-line); }
+  .hdr__in { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; }
+  .hdr__home { text-decoration: none; display: inline-flex; }
+  .hdr__nav { display: flex; align-items: center; gap: 32px; }
+  .hdr__nav ul { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 28px; }
+  .hdr__nav a { text-decoration: none; color: var(--color-text-muted); font-size: 0.95rem; transition: color var(--dur-fast); }
+  .hdr__nav a:hover, .hdr__nav a[aria-current] { color: var(--color-text); }
+  .hdr__nav .hdr__contact { color: var(--color-text); min-height: 40px; padding: 0 18px; }
+  .hdr__langs { gap: 12px !important; }
+  .hdr__langs a { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; }
+  .hdr__toggle { display: none; background: none; border: 1px solid var(--color-line-strong); color: var(--color-text); border-radius: 999px; min-height: 40px; padding: 0 16px; font: inherit; cursor: pointer; }
+  @media (max-width: 860px) {
+    .hdr__toggle { display: inline-flex; align-items: center; }
+    .hdr__nav { position: fixed; inset: calc(72px + env(safe-area-inset-top, 0px)) 0 0; background: var(--color-bg); flex-direction: column; align-items: stretch; gap: 32px; padding: 32px max(var(--gutter), env(safe-area-inset-left, 0px)); display: none; overflow-y: auto; }
+    .hdr__nav.is-open { display: flex; }
+    .hdr__nav ul { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .hdr__nav ul:first-child a { font-size: 1.75rem; color: var(--color-text); }
+    .hdr__nav ul:first-child .hdr__contact { font-size: 1rem; }
+    .hdr__langs { flex-direction: row !important; }
+  }
+</style>
+<script>
+  const hdr = document.querySelector('[data-hdr]')!;
+  const nav = document.querySelector('[data-nav]')!;
+  const btn = document.querySelector<HTMLButtonElement>('[data-toggle]')!;
+  const onScroll = () => hdr.classList.toggle('is-scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  const setOpen = (open: boolean) => {
+    nav.classList.toggle('is-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? btn.dataset.close! : btn.dataset.open!;
+    document.body.style.overflow = open ? 'hidden' : '';
+  };
+  btn.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+</script>

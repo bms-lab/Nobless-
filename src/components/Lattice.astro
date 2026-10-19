@@ -1,0 +1,115 @@
+---
+// The Lattice: a field of points that settles into the NOBLESS symbol (a square with an N cut out).
+// Canvas 2D, capped points and DPR, paused off-screen or when the tab is hidden, static with reduced motion.
+---
+<div class="lattice" aria-hidden="true">
+  <canvas data-lattice></canvas>
+</div>
+<style>
+  .lattice { position: absolute; inset: 0; pointer-events: none; }
+  .lattice canvas { width: 100%; height: 100%; display: block; }
+</style>
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-lattice]');
+  if (canvas) {
+    const ctx = canvas.getContext('2d')!;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const css = getComputedStyle(document.documentElement);
+    const ion = css.getPropertyValue('--color-ion').trim() || '#8cc8ff';
+    const line = css.getPropertyValue('--color-line-strong').trim() || '#353b4d';
+    const rtl = document.documentElement.dir === 'rtl';
+
+    // Symbol geometry in a 100x100 box: square 16..84, N stroke cut out.
+    const segs = [[34, 70, 34, 30], [34, 30, 66, 70], [66, 70, 66, 30]];
+    const distSeg = (px: number, py: number, [x1, y1, x2, y2]: number[]) => {
+      const dx = x2 - x1, dy = y2 - y1;
+      const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)));
+      return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+    };
+
+    type P = { x: number; y: number; vx: number; vy: number; tx: number; ty: number; gx: number; gy: number; r: number };
+    let pts: P[] = [], W = 0, H = 0, dpr = 1, running = false, raf = 0, t0 = 0;
+    const mouse = { x: -9999, y: -9999 };
+
+    const build = () => {
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      W = rect.width; H = rect.height;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const mobile = W < 760;
+      const size = mobile ? Math.min(W * 0.9, H * 0.55) : Math.min(W * 0.42, H * 0.78);
+      const ox = mobile ? (W - size) / 2 : rtl ? W * 0.06 : W - size - W * 0.06;
+      const oy = mobile ? H * 0.06 : (H - size) / 2;
+      const step = mobile ? 4 : 3;
+      const old = pts; pts = [];
+      let i = 0;
+      for (let gy = 16; gy <= 84; gy += step) for (let gx = 16; gx <= 84; gx += step) {
+        if (Math.min(...segs.map((s) => distSeg(gx, gy, s))) < 6.5) continue;
+        // Rounded corners (radius 16), as in the symbol.
+        const cx = Math.max(32, Math.min(68, gx)), cy = Math.max(32, Math.min(68, gy));
+        if (Math.hypot(gx - cx, gy - cy) > 16.5) continue;
+        const tx = ox + (gx / 100) * size, ty = oy + (gy / 100) * size;
+        const prev = old[i++];
+        pts.push({ x: prev?.x ?? Math.random() * W, y: prev?.y ?? Math.random() * H, vx: 0, vy: 0, tx, ty, gx, gy, r: mobile ? 1.1 : 1.3 });
+      }
+      if (reduced) { pts.forEach((p) => { p.x = p.tx; p.y = p.ty; }); draw(1); }
+    };
+
+    const draw = (settle: number) => {
+      ctx.clearRect(0, 0, W, H);
+      // Hairlines between grid neighbours fade in as the field settles.
+      if (settle > 0.2) {
+        ctx.strokeStyle = line; ctx.globalAlpha = Math.min(1, (settle - 0.2) * 1.2) * 0.55; ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        const key = new Map(pts.map((p) => [p.gx + ',' + p.gy, p]));
+        const step = W < 760 ? 4 : 3;
+        for (const p of pts) {
+          for (const [dx, dy] of [[step, 0], [0, step]]) {
+            const q = key.get(p.gx + dx + ',' + (p.gy + dy));
+            if (q) { ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); }
+          }
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1; ctx.fillStyle = ion;
+      for (const p of pts) { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }
+    };
+
+    const tick = (now: number) => {
+      if (!running) return;
+      if (!t0) t0 = now;
+      const settle = Math.min(1, (now - t0) / 2600);
+      const k = 0.012 + settle * 0.03;
+      for (const p of pts) {
+        const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+        if (d < 90 && d > 0.1) { const f = (90 - d) / 90 * 1.6; p.vx += (dx / d) * f; p.vy += (dy / d) * f; }
+        p.vx = (p.vx + (p.tx - p.x) * k) * 0.86;
+        p.vy = (p.vy + (p.ty - p.y) * k) * 0.86;
+        p.x += p.vx; p.y += p.vy;
+      }
+      draw(settle);
+      raf = requestAnimationFrame(tick);
+    };
+
+    const start = () => { if (!running && !reduced) { running = true; raf = requestAnimationFrame(tick); } };
+    const stop = () => { running = false; cancelAnimationFrame(raf); };
+
+    build();
+    if (!reduced) {
+      let visible = true;
+      new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible && !document.hidden ? start() : stop(); }).observe(canvas);
+      document.addEventListener('visibilitychange', () => (document.hidden || !visible ? stop() : start()));
+      // Mouse pushes the points; on phones a tap or swipe does, then the field settles back.
+      const push = (e: PointerEvent) => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; };
+      addEventListener('pointermove', push, { passive: true });
+      addEventListener('pointerdown', push, { passive: true });
+      const release = (e: PointerEvent) => { if (e.pointerType !== 'mouse') setTimeout(() => { mouse.x = mouse.y = -9999; }, 500); };
+      addEventListener('pointerup', release, { passive: true });
+      addEventListener('pointercancel', release, { passive: true });
+      canvas.parentElement!.parentElement!.addEventListener('pointerleave', () => { mouse.x = mouse.y = -9999; });
+    }
+    let rz = 0;
+    addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(build, 150); });
+  }
+</script>

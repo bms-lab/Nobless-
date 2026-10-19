@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, langPaths, type Lang } from '../../i18n/strings';
+import { href, site, isRealKey } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const l = s.legal;
+const contactOpen = isRealKey(site.web3formsKey) || !!site.contactEmail;
+---
+<Base lang={lang} title={s.meta.legalTitle} path="legal/">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{l.title}</span>
+    <h1>{l.title}</h1>
+  </section>
+  <section class="wrap body">
+    <div class="dl">
+      <div><span class="label">{l.publisher}</span><p class="lead">{l.publisherValue}</p></div>
+      <div><span class="label">{l.contactLabel}</span><p class="lead">{contactOpen ? <a href={href(lang, 'contact')}>{s.nav.contact}</a> : l.contactValue}</p></div>
+      {site.hosting && <div><span class="label">{l.hosting}</span><p class="lead">{site.hosting}</p></div>}
+      <div><span class="label">{l.ip}</span><p class="lead">{l.ipValue}</p></div>
+    </div>
+  </section>
+</Base>
+<style>.body { padding-bottom: clamp(64px, 10vw, 160px); } .dl a { color: var(--color-ion); }</style>
