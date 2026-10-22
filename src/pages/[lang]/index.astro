@@ -23,7 +23,7 @@ const next = () => ++n;
       <h1 class="hero__title settle">{h.title}</h1>
       <p class="lead hero__sub">{h.sub}</p>
       <div class="actions">
-        <a class="btn btn--primary" href={href(lang, 'products')}>{h.ctaPrimary} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--primary" href={href(lang, `products/${first.slug}`)}>{h.ctaNobeon} <span class="arrow" aria-hidden="true">→</span></a>
         {contactOpen ? <a class="btn" href={href(lang, 'contact')}>{h.ctaSecondary}</a> : <a class="btn" href={href(lang, 'company')}>{s.nav.company}</a>}
       </div>
     </div>
