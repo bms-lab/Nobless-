@@ -1,0 +1,6 @@
+---
+// "01  The house" with a hairline across the page. Numbers are written in Latin digits in every language, like the logo.
+interface Props { n: number; label: string }
+const { n, label } = Astro.props;
+---
+<p class="index label reveal"><span class="index__n" dir="ltr">{String(n).padStart(2, '0')}</span><span>{label}</span></p>

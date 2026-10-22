@@ -1,0 +1,27 @@
+{
+  "slug": "nobeon",
+  "name": "NOBEON",
+  "status": "exploring",
+  "order": 1,
+  "en": {
+    "oneLiner": "An AI assistant for everyone, in your language.",
+    "purpose": "We are exploring an AI assistant that is useful to people in their own language and context.",
+    "who": "Individuals and businesses. We are still learning who needs it most.",
+    "where": "In exploration. We are gathering insight before building a prototype. There is no app yet.",
+    "next": "A prototype, once we understand what people need most."
+  },
+  "fr": {
+    "oneLiner": "Un assistant IA pour tous, dans votre langue.",
+    "purpose": "Nous explorons un assistant IA utile à chacun, dans sa langue et son contexte.",
+    "who": "Les particuliers et les entreprises. Nous apprenons encore qui en a le plus besoin.",
+    "where": "En exploration. Nous recueillons des retours avant de construire un prototype. Il n'existe pas encore d'application.",
+    "next": "Un prototype, dès que nous aurons compris ce dont les gens ont le plus besoin."
+  },
+  "ar": {
+    "oneLiner": "مساعد ذكاء اصطناعي للجميع، بلغتك.",
+    "purpose": "نستكشف مساعدًا ذكيًا يكون مفيدًا للناس بلغتهم وفي سياقهم.",
+    "who": "الأفراد والشركات. ما زلنا نتعلّم من يحتاجه أكثر.",
+    "where": "في مرحلة الاستكشاف. نجمع الملاحظات قبل بناء نموذج أولي. لا يوجد تطبيق بعد.",
+    "next": "نموذج أولي، بعد أن نفهم ما يحتاجه الناس أكثر."
+  }
+}

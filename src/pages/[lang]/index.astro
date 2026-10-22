@@ -1,0 +1,184 @@
+---
+import Base from '../../layouts/Base.astro';
+import Lattice from '../../components/Lattice.astro';
+import SectionIndex from '../../components/SectionIndex.astro';
+import Process from '../../components/Process.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { t, langPaths, LANGS, LANG_NAME, type Lang } from '../../i18n/strings';
+import { href, products, articles, fmtDate, contactOpen } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const h = s.home;
+const latest = articles(lang).slice(0, 3);
+const first = products[0];
+let n = 0;
+const next = () => ++n;
+---
+<Base lang={lang} title={s.meta.homeTitle} description={s.meta.homeDesc}>
+  <section class="hero">
+    <Lattice />
+    <div class="wrap hero__in">
+      <span class="label label--aurum">{h.eyebrow}</span>
+      <h1 class="hero__title settle">{h.title}</h1>
+      <p class="lead hero__sub">{h.sub}</p>
+      <div class="actions">
+        <a class="btn btn--primary" href={href(lang, `products/${first.slug}`)}>{h.ctaNobeon} <span class="arrow" aria-hidden="true">→</span></a>
+        {contactOpen ? <a class="btn" href={href(lang, 'contact')}>{h.ctaSecondary}</a> : <a class="btn" href={href(lang, 'company')}>{s.nav.company}</a>}
+      </div>
+    </div>
+    <div class="wrap rail-wrap">
+      <dl class="rail">
+        <div>
+          <dt class="label">{h.railProduct}</dt>
+          <dd><a href={href(lang, `products/${first.slug}`)}>{first.name}</a> <span class={`status status--${first.status}`}>{s.status[first.status as keyof typeof s.status]}</span></dd>
+        </div>
+        <div>
+          <dt class="label">{h.railLanguages}</dt>
+          <dd>{LANGS.map((l) => <span lang={l}>{LANG_NAME[l]}</span>)}</dd>
+        </div>
+        <div>
+          <dt class="label">{h.railPrinciples}</dt>
+          <dd>{s.values.map((v) => <span>{v.title}</span>)}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={next()} label={h.houseLabel} />
+      <div class="house reveal">
+        <h2 class="statement">{h.houseTitle}</h2>
+        <p class="lead">{h.houseBody}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={next()} label={h.principlesLabel} />
+      <h2 class="section__title reveal">{h.principlesTitle}</h2>
+      <ol class="ledger">
+        {s.values.map((v, i) => (
+          <li class="ledger__row reveal">
+            <span class="label ledger__n" dir="ltr">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="ledger__t">{v.title}</h3>
+            <p class="muted ledger__b">{v.body}</p>
+          </li>
+        ))}
+      </ol>
+      <a class="quiet more reveal" href={href(lang, 'principles')}>{h.commitmentsLink} <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={next()} label={h.productsLabel} />
+      <h2 class="section__title reveal">{h.productsTitle}</h2>
+      <div class="reveal"><ProductCard lang={lang} product={first} /></div>
+      <div class="nextp reveal">
+        <span class="label">{h.nextProduct}</span>
+        <p>{h.nextProductBody}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={next()} label={h.processLabel} />
+      <h2 class="section__title reveal">{h.processTitle}</h2>
+      <Process lang={lang} />
+    </div>
+  </section>
+
+  {latest.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <SectionIndex n={next()} label={s.nav.journal} />
+        <div class="jhead reveal">
+          <h2 class="section__title">{h.journalTitle}</h2>
+          <a class="quiet" href={href(lang, 'journal')}>{h.closingJournal} <span class="arrow" aria-hidden="true">→</span></a>
+        </div>
+        <ul class="jlist">
+          {latest.map((a) => (
+            <li class="reveal">
+              <a href={href(lang, `journal/${a.slug}`)} class="jrow">
+                <span class="label">{fmtDate(a.date, lang)}</span>
+                <span class="jrow__t">{a.title}</span>
+                <span class="label jrow__c">{s.journal.categories[a.category]}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={next()} label={h.commitmentsLabel} />
+      <div class="split reveal">
+        <h2 class="section__title">{h.commitmentsTitle}</h2>
+        <ul class="commit">{h.commitments.map((c) => <li>{c}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="wrap">
+      <div class="closing__panel reveal">
+        <div class="closing__grid" aria-hidden="true"></div>
+        <h2>{h.closingTitle}</h2>
+        <p class="lead">{contactOpen ? h.closingBody : h.closingBodyOff}</p>
+        <div class="actions">
+          <a class="btn btn--primary" href={href(lang, 'journal')}>{h.closingJournal} <span class="arrow" aria-hidden="true">→</span></a>
+          {contactOpen && <a class="btn" href={href(lang, 'contact')}>{h.ctaSecondary}</a>}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .hero { position: relative; min-height: min(100svh, 1000px); display: grid; grid-template-rows: 1fr auto; overflow: hidden; padding-top: 140px; }
+  .hero__in { position: relative; display: grid; gap: 28px; align-content: center; padding-bottom: var(--space-8); }
+  .hero__title { font-size: var(--text-display); font-weight: 300; font-variation-settings: 'HEXP' 22; letter-spacing: -0.04em; line-height: 0.98; max-width: 10ch; }
+  :lang(ar) .hero__title { font-variation-settings: 'HEXP' 0; letter-spacing: 0; line-height: 1.25; font-size: calc(var(--text-display) * 0.86); }
+  .hero__sub { max-width: 44ch; color: var(--color-text-muted); }
+  .rail-wrap { position: relative; }
+  .rail { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--color-line); }
+  .rail > div { padding-block: var(--space-5) var(--space-6); padding-inline-end: var(--space-5); display: grid; gap: var(--space-2); align-content: start; }
+  .rail > div + div { border-inline-start: 1px solid var(--color-line); padding-inline-start: var(--space-5); }
+  .rail dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; color: var(--color-text-muted); font-size: 0.95rem; }
+  .rail dd a { color: var(--color-text); text-decoration: none; font-weight: 500; letter-spacing: 0.08em; }
+  .rail dd a:hover { color: var(--color-ion-strong); }
+  @media (max-width: 759px) {
+    .hero { min-height: 100svh; }
+    .hero__in { padding-top: 40vh; align-content: end; }
+    .rail { grid-template-columns: 1fr; }
+    .rail > div { padding-block: var(--space-4); }
+    .rail > div + div { border-inline-start: 0; border-top: 1px solid var(--color-line); padding-inline-start: 0; }
+  }
+
+  .house { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-7); align-items: end; }
+  .statement { font-size: var(--text-h1); max-width: 14ch; }
+  @media (max-width: 860px) { .house { grid-template-columns: 1fr; gap: var(--space-5); } }
+
+  .nextp { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); align-items: baseline; margin-top: var(--space-5); padding: var(--space-5) clamp(24px, 4vw, 56px); border: 1px dashed var(--color-line-strong); border-radius: var(--radius-lg); color: var(--color-text-muted); }
+
+  .jhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: var(--space-4); margin-bottom: clamp(40px, 5vw, 72px); }
+  .jhead .section__title { margin: 0; }
+  .jlist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
+  .jlist li { border-bottom: 1px solid var(--color-line); }
+  .jrow { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) auto; gap: var(--space-5); align-items: baseline; padding-block: var(--space-6); text-decoration: none; }
+  .jrow__t { font-size: var(--text-h3); transition: color var(--dur-fast); }
+  .jrow:hover .jrow__t { color: var(--color-ion-strong); }
+  @media (max-width: 760px) { .jrow { grid-template-columns: 1fr; gap: var(--space-2); } }
+
+  .closing { padding-block: 0 var(--section-y); }
+  .closing__panel { position: relative; overflow: hidden; isolation: isolate; display: grid; gap: var(--space-5); justify-items: start; padding: clamp(32px, 7vw, 112px); border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-bg-raised); }
+  .closing__panel h2 { font-size: var(--text-h1); max-width: 14ch; }
+  .closing__grid { position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(var(--color-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-line) 1px, transparent 1px); background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 80% at 90% 50%, #000, transparent 70%); mask-image: radial-gradient(ellipse 60% 80% at 90% 50%, #000, transparent 70%); opacity: 0.7; }
+  [dir='rtl'] .closing__grid { -webkit-mask-image: radial-gradient(ellipse 60% 80% at 10% 50%, #000, transparent 70%); mask-image: radial-gradient(ellipse 60% 80% at 10% 50%, #000, transparent 70%); }
+</style>

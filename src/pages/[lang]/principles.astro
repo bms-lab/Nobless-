@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import SectionIndex from '../../components/SectionIndex.astro';
+import { t, langPaths, type Lang } from '../../i18n/strings';
+import { href, contactOpen } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const c = s.company;
+---
+<Base lang={lang} title={s.meta.principlesTitle} description={s.meta.principlesDesc} path="principles/" current="principles">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{s.nav.principles}</span>
+    <h1 class="settle">{s.home.principlesTitle}</h1>
+  </section>
+  <section class="wrap">
+    <ol class="ledger">
+      {s.values.map((v, i) => (
+        <li class="ledger__row reveal">
+          <span class="label ledger__n" dir="ltr">{String(i + 1).padStart(2, '0')}</span>
+          <h2 class="ledger__t">{v.title}</h2>
+          <p class="muted ledger__b">{v.body}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={1} label={c.commitmentsLabel} />
+      <div class="split reveal">
+        <h2 class="section__title">{s.home.commitmentsTitle}</h2>
+        <ul class="commit">{c.commitments.map((x) => <li>{x}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={2} label={c.chooseLabel} />
+      <div class="split reveal">
+        <p class="lead big">{c.choose}</p>
+        <div class="actions">
+          <a class="btn btn--primary" href={href(lang, 'products')}>{s.home.ctaPrimary} <span class="arrow" aria-hidden="true">→</span></a>
+          {contactOpen ? <a class="btn" href={href(lang, 'contact')}>{s.home.ctaSecondary}</a> : <a class="btn" href={href(lang, 'company')}>{s.nav.company}</a>}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .big { font-size: var(--text-h3); color: var(--color-text); font-weight: 300; max-width: 34ch; }
+</style>

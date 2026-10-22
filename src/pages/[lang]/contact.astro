@@ -1,0 +1,128 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, langPaths, type Lang } from '../../i18n/strings';
+import { href, site, isRealKey, contactOpen } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const c = s.contact;
+const formOn = isRealKey(site.web3formsKey);
+---
+<Base lang={lang} title={s.meta.contactTitle} description={s.meta.contactDesc} path="contact/" current="contact">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{c.title}</span>
+    <h1>{c.title}</h1>
+    <p class="lead">{contactOpen ? c.lead : c.leadOff}</p>
+  </section>
+  <section class="wrap layout">
+    {formOn ? (
+      <form class="card form" novalidate data-form action="https://api.web3forms.com/submit" method="POST"
+        data-msg-sending={c.sending} data-msg-sent={c.sent} data-msg-error={c.error} data-msg-email={c.invalidEmail} data-msg-required={c.required} data-send={c.send}>
+        <div class="field">
+          <label for="f-topic">{c.topic}</label>
+          <select id="f-topic" name="topic">
+            {Object.entries(c.topics).map(([k, v]) => <option value={k}>{v}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-name">{c.name} <span class="opt">({c.optional})</span></label>
+          <input id="f-name" name="name" type="text" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="f-email">{c.email}</label>
+          <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" required aria-describedby="e-email" />
+          <p class="err" id="e-email" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="f-message">{c.message}</label>
+          <textarea id="f-message" name="message" rows="6" required aria-describedby="e-message"></textarea>
+          <p class="err" id="e-message" aria-live="polite"></p>
+        </div>
+        <input type="hidden" name="access_key" value={site.web3formsKey} />
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <p class="muted small">{c.privacyNote.split('.')[0]}. <a href={href(lang, 'privacy')}>{s.footer.privacy}</a></p>
+        <button class="btn btn--primary" type="submit">{c.send}</button>
+        <p class="result" role="status" aria-live="polite" data-result></p>
+      </form>
+    ) : (
+      <div class="card off">
+        <h2 class="off__t">{c.unavailable}</h2>
+        <p class="muted">{c.unavailableBody}</p>
+        <a class="btn" href={href(lang, 'journal')}>{s.home.closingJournal}</a>
+      </div>
+    )}
+    {site.contactEmail && (
+      <aside class="mail">
+        <span class="label">{c.emailLabel}</span>
+        <p class="mail__addr"><span data-mail>{site.contactEmail}</span></p>
+        <button type="button" class="btn copy" data-copy data-done={c.copied}>{c.copy}</button>
+      </aside>
+    )}
+  </section>
+</Base>
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 32px; align-items: start; padding-bottom: clamp(64px, 10vw, 160px); }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+  .form { gap: 20px; }
+  .field { display: grid; gap: 8px; }
+  label { font-size: 0.95rem; }
+  .opt { color: var(--color-text-muted); }
+  input, select, textarea { font: inherit; color: var(--color-text); background: var(--color-bg-elevated); border: 1px solid var(--color-text-faint); border-radius: 10px; padding: 12px 14px; min-height: 48px; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--color-ion); outline-offset: 1px; border-color: var(--color-ion); }
+  [aria-invalid='true'] { border-color: var(--color-danger); }
+  .err { color: var(--color-danger); font-size: 0.875rem; min-height: 0; }
+  .err:empty { display: none; }
+  .hp { position: absolute; left: -9999px; }
+  .small { font-size: 0.875rem; }
+  .small a { color: var(--color-ion); }
+  .result[data-state='ok'] { color: var(--color-success); }
+  .result[data-state='error'] { color: var(--color-danger); }
+  .result:empty { display: none; }
+  .off { padding: clamp(32px, 5vw, 56px); gap: 16px; justify-items: start; }
+  .off__t { font-size: var(--text-h3); font-weight: 500; }
+  .mail { display: grid; gap: 12px; justify-items: start; }
+  .mail__addr { font-size: var(--text-body-lg); user-select: all; overflow-wrap: anywhere; }
+</style>
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  const topic = new URLSearchParams(location.search).get('topic');
+  const sel = document.querySelector<HTMLSelectElement>('#f-topic');
+  if (sel && topic && [...sel.options].some((o) => o.value === topic)) sel.value = topic;
+
+  if (form) {
+    const d = form.dataset;
+    const out = form.querySelector<HTMLElement>('[data-result]')!;
+    const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const setErr = (id: string, msg: string) => {
+      const el = form.querySelector<HTMLInputElement>('#f-' + id)!;
+      el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      form.querySelector('#e-' + id)!.textContent = msg;
+      return !msg;
+    };
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+      const message = (form.elements.namedItem('message') as HTMLTextAreaElement).value.trim();
+      const okE = setErr('email', !email ? d.msgRequired! : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? '' : d.msgEmail!);
+      const okM = setErr('message', message ? '' : d.msgRequired!);
+      if (!okE || !okM) { form.querySelector<HTMLElement>('[aria-invalid=true]')?.focus(); return; }
+      btn.disabled = true; btn.textContent = d.msgSending!; out.textContent = ''; delete out.dataset.state;
+      const fd = new FormData(form);
+      fd.append('subject', 'NOBLESS website: ' + fd.get('topic'));
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error();
+        form.reset(); out.dataset.state = 'ok'; out.textContent = d.msgSent!;
+      } catch {
+        out.dataset.state = 'error'; out.textContent = d.msgError!;
+      } finally { btn.disabled = false; btn.textContent = d.send!; }
+    });
+  }
+
+  document.querySelector<HTMLButtonElement>('[data-copy]')?.addEventListener('click', async (e) => {
+    const b = e.currentTarget as HTMLButtonElement;
+    const text = document.querySelector('[data-mail]')!.textContent!;
+    try { await navigator.clipboard.writeText(text); b.textContent = b.dataset.done!; } catch { getSelection()?.selectAllChildren(document.querySelector('[data-mail]')!); }
+  });
+</script>

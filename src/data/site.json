@@ -1,0 +1,16 @@
+{
+  "_readme": "Fill these before launch. Empty values hide the matching element on the site. Nothing here is invented.",
+  "sinceYear": "",
+  "contactEmail": "",
+  "web3formsKey": "",
+  "formProvider": "",
+  "newsletterUrl": "",
+  "hosting": "Vercel",
+  "social": {
+    "instagram": "",
+    "tiktok": "",
+    "youtube": "",
+    "linkedin": "",
+    "x": ""
+  }
+}

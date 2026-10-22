@@ -1,0 +1,104 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { t, langPaths, type Lang } from '../../../i18n/strings';
+import { href, articles, fmtDate } from '../../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const j = s.journal;
+const list = articles(lang);
+const [lead, ...rest] = list;
+const cats = [...new Set(list.map((a) => a.category))];
+---
+<Base lang={lang} title={s.meta.journalTitle} description={s.meta.journalDesc} path="journal/" current="journal">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{j.title}</span>
+    <h1 class="settle">{s.home.journalTitle}</h1>
+    <p class="lead">{j.lead}</p>
+    <ul class="legend" aria-label={j.statusLabel}>
+      {Object.entries(j.statusTags).map(([k, v]) => <li class={`tag tag--${k}`}>{v}</li>)}
+    </ul>
+  </section>
+  <section class="wrap body">
+    {list.length === 0 ? (
+      <div class="empty"><h2 class="empty__t">{j.empty}</h2><p class="muted">{j.emptyBody}</p></div>
+    ) : (
+      <>
+        <a class="feat reveal" href={href(lang, `journal/${lead.slug}`)} lang={lead.isFallback ? 'en' : undefined}>
+          <span class="feat__grid" aria-hidden="true"></span>
+          <span class="label feat__k">{j.latest}</span>
+          <h2 class="feat__t">{lead.title}</h2>
+          <p class="lead">{lead.excerpt}</p>
+          <span class="meta label">
+            <span>{fmtDate(lead.date, lang)}</span><span>{j.categories[lead.category]}</span><span>{j.minRead(lead.minutes)}</span>
+            <span class={`tag tag--${lead.status}`}>{j.statusTags[lead.status]}</span>
+          </span>
+        </a>
+        {rest.length > 0 && (
+          <>
+            {cats.length > 1 && (
+              <div class="chips" role="group" aria-label={j.category} data-chips>
+                <button type="button" aria-pressed="true" data-cat="">{j.all}</button>
+                {cats.map((c) => <button type="button" aria-pressed="false" data-cat={c}>{j.categories[c]}</button>)}
+              </div>
+            )}
+            <ul class="arts">
+              {rest.map((a) => (
+                <li data-cat={a.category} class="reveal">
+                  <a href={href(lang, `journal/${a.slug}`)} class="art">
+                    <span class="label">{fmtDate(a.date, lang)}</span>
+                    <span class="art__main">
+                      <h2 class="art__t">{a.title}</h2>
+                      <p class="muted">{a.excerpt}</p>
+                    </span>
+                    <span class="label art__c">{j.categories[a.category]} · {j.minRead(a.minutes)}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </>
+    )}
+  </section>
+</Base>
+<style>
+  .body { padding-bottom: var(--section-y); display: grid; gap: var(--space-7); }
+  .legend { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); padding: 3px 10px; }
+  :lang(ar) .tag { letter-spacing: 0; text-transform: none; font-size: var(--text-small); }
+  .tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--color-success); }
+  .tag--wip::before { background: var(--color-ion); }
+  .tag--plan::before { background: transparent; border: 1px solid var(--color-aurum); }
+  .empty { padding: clamp(32px, 5vw, 64px); border: 1px dashed var(--color-line-strong); border-radius: var(--radius-lg); display: grid; gap: var(--space-3); }
+  .empty__t { font-size: var(--text-h3); }
+  .feat { position: relative; overflow: hidden; isolation: isolate; display: grid; gap: var(--space-5); padding: clamp(28px, 6vw, 88px); border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-bg-raised); text-decoration: none; transition: border-color var(--dur-fast); }
+  .feat:hover { border-color: var(--color-line-strong); }
+  .feat__grid { position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(circle, var(--color-line-strong) 1px, transparent 1.4px); background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse 50% 90% at 100% 0%, #000, transparent 70%); mask-image: radial-gradient(ellipse 50% 90% at 100% 0%, #000, transparent 70%); }
+  [dir='rtl'] .feat__grid { -webkit-mask-image: radial-gradient(ellipse 50% 90% at 0% 0%, #000, transparent 70%); mask-image: radial-gradient(ellipse 50% 90% at 0% 0%, #000, transparent 70%); }
+  .feat__k { color: var(--color-ion); }
+  .feat__t { font-size: var(--text-h1); max-width: 16ch; transition: color var(--dur-fast); }
+  .feat:hover .feat__t { color: var(--color-ion-strong); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button { font: inherit; font-size: 0.9rem; color: var(--color-text-muted); background: none; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); padding: 6px 16px; cursor: pointer; min-height: 40px; }
+  .chips button[aria-pressed='true'] { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .arts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
+  .arts li { border-bottom: 1px solid var(--color-line); }
+  .art { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) auto; gap: var(--space-5); align-items: baseline; padding-block: var(--space-6); text-decoration: none; }
+  .art__main { display: grid; gap: var(--space-2); }
+  .art__t { font-size: var(--text-h3); font-weight: 400; transition: color var(--dur-fast); }
+  .art:hover .art__t { color: var(--color-ion-strong); }
+  @media (max-width: 760px) { .art { grid-template-columns: 1fr; gap: var(--space-2); } }
+</style>
+<script>
+  const chips = document.querySelector('[data-chips]');
+  chips?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button');
+    if (!b) return;
+    chips.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    const cat = b.dataset.cat;
+    document.querySelectorAll<HTMLElement>('.arts li').forEach((li) => { li.hidden = !!cat && li.dataset.cat !== cat; });
+  });
+</script>
