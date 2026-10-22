@@ -1,8 +1,9 @@
 ---
 // The four steps every project goes through. A line runs through the step markers.
 import { t, type Lang } from '../i18n/strings';
-interface Props { lang: Lang }
-const { lang } = Astro.props;
+interface Props { lang: Lang; level?: 2 | 3 }
+const { lang, level = 3 } = Astro.props;
+const H = level === 2 ? 'h2' : 'h3';
 const steps = t(lang).home.process;
 ---
 <ol class="proc">
@@ -10,7 +11,7 @@ const steps = t(lang).home.process;
     <li class="proc__step reveal" style={`transition-delay:${i * 90}ms`}>
       <span class="proc__dot" aria-hidden="true"></span>
       <span class="label proc__n" dir="ltr">{String(i + 1).padStart(2, '0')}</span>
-      <h3 class="proc__t">{s.t}</h3>
+      <H class="proc__t">{s.t}</H>
       <p class="muted">{s.b}</p>
     </li>
   ))}
@@ -22,7 +23,7 @@ const steps = t(lang).home.process;
   .proc__step { display: grid; gap: var(--space-3); align-content: start; padding-inline-end: var(--space-6); position: relative; }
   .proc__dot { width: 11px; height: 11px; border-radius: 50%; background: var(--color-bg); border: 1px solid var(--color-ion); margin-bottom: var(--space-5); }
   .proc__step:first-child .proc__dot { background: var(--color-ion); }
-  .proc__t { font-size: var(--text-h3); }
+  .proc__t { font-size: var(--text-h3); font-weight: 400; line-height: 1.25; letter-spacing: 0; font-variation-settings: 'HEXP' 0; }
   @media (max-width: 900px) {
     .proc { grid-template-columns: 1fr; gap: var(--space-6); padding-inline-start: var(--space-6); }
     .proc::before { inset-inline-start: 5px; inset-inline-end: auto; top: 6px; bottom: 6px; width: 1px; height: auto; background: linear-gradient(to bottom, var(--color-ion), var(--color-line)); }

@@ -73,6 +73,8 @@ Empty values hide their element, so nothing unverified shows.
 | `social` | Real account links | No social links |
 
 ## Design
+The full design system (colors and their roles, type scale, spacing, components) is in `DESIGN.md`.
+
 - **One typeface:** Readex Pro (Latin + Arabic, free OFL licence), self-hosted, variable weight and width (HEXP axis on Latin headings).
 - **Interactive, calm:** the Lattice forms the logo in the hero; on computers a faint dot field follows the pointer and cards light up under it; headlines settle from thin to normal weight.
 - **Reduced motion:** with "reduce motion" on (phone or computer settings) all of this is static. Phones never get the pointer field.
