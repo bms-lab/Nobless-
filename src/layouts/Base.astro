@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { LANGS, DIR, type Lang } from '../i18n/strings';
+interface Props { lang: Lang; title: string; description?: string; path?: string; current?: string; langs?: readonly Lang[]; noindex?: boolean }
+const { lang, title, description = '', path = '', current, langs = LANGS, noindex = false } = Astro.props;
+const site = Astro.site!.toString().replace(/\/$/, '');
+const canonical = `${site}/${lang}/${path}`;
+---
+<!doctype html>
+<html lang={lang} dir={DIR[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {!noindex && langs.map((l) => <link rel="alternate" hreflang={l} href={`${site}/${l}/${path}`} />)}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={`${site}/en/${path}`} />}
+    <meta name="theme-color" content="#07080B" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NOBLESS" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${site}/og.png`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:locale" content={{ en: 'en_US', fr: 'fr_FR', ar: 'ar_MA' }[lang]} />
+    {path === '' && !noindex && (
+      <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'Organization', name: 'NOBLESS', url: `${site}/`, logo: `${site}/favicon.svg` })} />
+    )}
+    <script is:inline>document.documentElement.classList.add('js')</script>
+  </head>
+  <body>
+    <Header lang={lang} path={path} current={current} langs={langs} />
+    <div class="sfield" aria-hidden="true"></div>
+    <main id="main"><slot /></main>
+    <Footer lang={lang} />
+    <script>
+      const els = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+        els.forEach((el) => io.observe(el));
+      } else els.forEach((el) => el.classList.add('is-in'));
+      // Pointer field and card light: follows the mouse on computers, the finger on phones. Off with reduced motion.
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const root = document.documentElement;
+        root.classList.add('has-field');
+        let f = 0, x = 0, y = 0, fade = 0, card: HTMLElement | null = null;
+        const move = (e: PointerEvent) => {
+          x = e.clientX; y = e.clientY; card = (e.target as Element).closest?.('.card') as HTMLElement | null;
+          if (e.pointerType !== 'mouse') { root.classList.add('touching'); clearTimeout(fade); fade = window.setTimeout(() => root.classList.remove('touching'), 1400); }
+          if (f) return;
+          f = requestAnimationFrame(() => {
+            f = 0; root.style.setProperty('--px', x + 'px'); root.style.setProperty('--py', y + 'px');
+            if (card) { const r = card.getBoundingClientRect(); card.style.setProperty('--mx', x - r.left + 'px'); card.style.setProperty('--my', y - r.top + 'px'); }
+          });
+        };
+        addEventListener('pointermove', move, { passive: true });
+        addEventListener('pointerdown', move, { passive: true });
+      }
+    </script>
+  </body>
+</html>

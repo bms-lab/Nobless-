@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import { LANGS, DIR, t } from '../i18n/strings';
+// One static 404 serves every URL. It shows the message in the visitor's language, taken from the URL (/fr/…, /ar/…);
+// English is the default when JavaScript is off or the path has no language.
+---
+<Base lang="en" title={t('en').meta.notFoundTitle} noindex>
+  {LANGS.map((l) => {
+    const s = t(l);
+    return (
+      <section class="wrap page-head" lang={l} dir={DIR[l]} data-nf={l} hidden={l !== 'en'}>
+        <span class="label label--aurum">404</span>
+        <h1>{s.notFound.title}</h1>
+        <p class="lead">{s.notFound.body}</p>
+        <div class="actions">
+          <a class="btn btn--primary" href={`/${l}/`}>{s.notFound.back}</a>
+          {LANGS.filter((o) => o !== l).map((o) => <a class="btn" href={`/${o}/`} lang={o}>{{ en: 'English', fr: 'Français', ar: 'العربية' }[o]}</a>)}
+        </div>
+      </section>
+    );
+  })}
+  <script is:inline>
+    (function () {
+      var l = (location.pathname.match(/^\/(fr|ar)(\/|$)/) || [])[1];
+      if (!l) return;
+      document.querySelectorAll('[data-nf]').forEach(function (s) { s.hidden = s.getAttribute('data-nf') !== l; });
+      document.documentElement.lang = l;
+      document.title = document.querySelector('[data-nf="' + l + '"] h1').textContent + ' | NOBLESS';
+    })();
+  </script>
+</Base>

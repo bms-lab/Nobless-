@@ -1,0 +1,32 @@
+---
+// The four steps every project goes through. A line runs through the step markers.
+import { t, type Lang } from '../i18n/strings';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const steps = t(lang).home.process;
+---
+<ol class="proc">
+  {steps.map((s, i) => (
+    <li class="proc__step reveal" style={`transition-delay:${i * 90}ms`}>
+      <span class="proc__dot" aria-hidden="true"></span>
+      <span class="label proc__n" dir="ltr">{String(i + 1).padStart(2, '0')}</span>
+      <h3 class="proc__t">{s.t}</h3>
+      <p class="muted">{s.b}</p>
+    </li>
+  ))}
+</ol>
+<style>
+  .proc { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: relative; }
+  .proc::before { content: ''; position: absolute; inset-inline: 0; top: 5px; height: 1px; background: linear-gradient(to right, var(--color-ion), var(--color-line-strong) 40%, var(--color-line)); }
+  [dir='rtl'] .proc::before { background: linear-gradient(to left, var(--color-ion), var(--color-line-strong) 40%, var(--color-line)); }
+  .proc__step { display: grid; gap: var(--space-3); align-content: start; padding-inline-end: var(--space-6); position: relative; }
+  .proc__dot { width: 11px; height: 11px; border-radius: 50%; background: var(--color-bg); border: 1px solid var(--color-ion); margin-bottom: var(--space-5); }
+  .proc__step:first-child .proc__dot { background: var(--color-ion); }
+  .proc__t { font-size: var(--text-h3); }
+  @media (max-width: 900px) {
+    .proc { grid-template-columns: 1fr; gap: var(--space-6); padding-inline-start: var(--space-6); }
+    .proc::before { inset-inline-start: 5px; inset-inline-end: auto; top: 6px; bottom: 6px; width: 1px; height: auto; background: linear-gradient(to bottom, var(--color-ion), var(--color-line)); }
+    [dir='rtl'] .proc::before { background: linear-gradient(to bottom, var(--color-ion), var(--color-line)); }
+    .proc__dot { position: absolute; inset-inline-start: calc(-1 * var(--space-6)); top: 6px; margin: 0; }
+  }
+</style>

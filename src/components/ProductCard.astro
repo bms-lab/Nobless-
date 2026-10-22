@@ -1,0 +1,35 @@
+---
+import Logo from './Logo.astro';
+import StageTrack from './StageTrack.astro';
+import { t, type Lang } from '../i18n/strings';
+import { href, type Product } from '../lib/content';
+interface Props { lang: Lang; product: Product; level?: 2 | 3 }
+const { lang, product, level = 3 } = Astro.props;
+const H = level === 2 ? 'h2' : 'h3';
+const s = t(lang);
+const copy = product[lang];
+---
+<article class="pcard">
+  <a class="pcard__main" href={href(lang, `products/${product.slug}`)}>
+    <span class="pcard__top">
+      <span class="pcard__sym" aria-hidden="true"><Logo size={18} wordmark={false} /></span>
+      <span class={`status status--${product.status}`}>{s.status[product.status as keyof typeof s.status]}</span>
+    </span>
+    <span class="label">{s.products.by}</span>
+    <H class="pcard__name">{product.name}</H>
+    <p class="lead">{copy.oneLiner}</p>
+    <span class="quiet">{s.products.view} <span class="arrow" aria-hidden="true">→</span></span>
+  </a>
+  <div class="pcard__track"><StageTrack lang={lang} product={product} /></div>
+</article>
+<style>
+  .pcard { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-bg-raised); overflow: hidden; transition: border-color var(--dur-fast); }
+  .pcard:hover { border-color: var(--color-line-strong); }
+  .pcard__main { display: grid; gap: var(--space-4); align-content: start; padding: clamp(24px, 4vw, 56px); text-decoration: none; }
+  .pcard__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
+  .pcard__sym { display: inline-flex; width: 44px; height: 44px; border: 1px solid var(--color-line-strong); border-radius: 12px; align-items: center; justify-content: center; background: var(--color-bg); }
+  .pcard__name { font-size: clamp(2.75rem, 1.6rem + 4.4vw, 5.5rem); font-weight: 300; letter-spacing: 0.04em; line-height: 1; font-variation-settings: 'HEXP' 30; }
+  .pcard__main:hover .pcard__name { color: var(--color-ion-strong); }
+  .pcard__track { padding: clamp(24px, 4vw, 56px); border-inline-start: 1px solid var(--color-line); display: grid; align-content: center; }
+  @media (max-width: 900px) { .pcard { grid-template-columns: 1fr; } .pcard__track { border-inline-start: 0; border-top: 1px solid var(--color-line); } }
+</style>

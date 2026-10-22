@@ -1,0 +1,74 @@
+---
+import Base from '../../../layouts/Base.astro';
+import StageTrack from '../../../components/StageTrack.astro';
+import Logo from '../../../components/Logo.astro';
+import { LANGS, t, type Lang } from '../../../i18n/strings';
+import { href, products, articles, fmtDate, contactOpen } from '../../../lib/content';
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) => products.map((p) => ({ params: { lang, slug: p.slug }, props: { product: p } })));
+}
+const lang = Astro.params.lang as Lang;
+const { product } = Astro.props;
+const s = t(lang);
+const ps = s.products;
+const copy = product[lang];
+const updates = articles(lang).filter((a) => a.product === product.slug);
+---
+<Base lang={lang} title={`${product.name} | ${s.status[product.status as keyof typeof s.status]} | NOBLESS`} description={copy.purpose} path={`products/${product.slug}/`} current="products">
+  <section class="wrap page-head">
+    <a class="back" href={href(lang, 'products')}><span class="arrow" aria-hidden="true">←</span> {ps.back}</a>
+    <span class="sym" aria-hidden="true"><Logo size={22} wordmark={false} /></span>
+    <h1 class="name settle">{product.name}</h1>
+    <p class="by label">{ps.by}</p>
+    <p class="lead">{copy.oneLiner}</p>
+  </section>
+  <section class="wrap detail">
+    <div class="dl">
+      <div class="reveal"><span class="label">{ps.purpose}</span><p class="lead">{copy.purpose}</p></div>
+      <div class="reveal"><span class="label">{ps.who}</span><p class="lead">{copy.who}</p></div>
+      <div class="reveal"><span class="label">{ps.updates}</span>
+        {updates.length ? (
+          <ul class="list-plain">{updates.map((a) => <li><a href={href(lang, `journal/${a.slug}`)}>{a.title}</a> <span class="muted">· {fmtDate(a.date, lang)}</span></li>)}</ul>
+        ) : <p class="muted">{ps.noUpdates}</p>}
+      </div>
+    </div>
+    <aside class="side reveal">
+      <span class={`status status--${product.status}`}>{s.status[product.status as keyof typeof s.status]}</span>
+      <h2 class="label side__t">{ps.where}</h2>
+      <StageTrack lang={lang} product={product} />
+    </aside>
+  </section>
+  <section class="section">
+    <div class="wrap"><div class="cta reveal">
+      {contactOpen ? (
+        <>
+          <h2>{ps.cta}</h2>
+          <p class="lead">{ps.ctaBody}</p>
+          <a class="btn btn--primary" href={href(lang, 'contact') + `?topic=${product.slug}`}>{s.nav.contact} <span class="arrow" aria-hidden="true">→</span></a>
+        </>
+      ) : (
+        <>
+          <h2>{ps.ctaOffTitle}</h2>
+          <p class="lead">{ps.ctaOffBody}</p>
+          <a class="btn btn--primary" href={href(lang, 'journal')}>{s.home.closingJournal} <span class="arrow" aria-hidden="true">→</span></a>
+        </>
+      )}
+    </div></div>
+  </section>
+</Base>
+<style>
+  .back { color: var(--color-text-muted); text-decoration: none; display: inline-flex; gap: 8px; width: fit-content; margin-bottom: var(--space-5); }
+  .back:hover { color: var(--color-text); }
+  .sym { display: inline-flex; width: 56px; height: 56px; border: 1px solid var(--color-line-strong); border-radius: 14px; align-items: center; justify-content: center; background: var(--color-bg-raised); }
+  .name { font-size: clamp(3.5rem, 1.6rem + 8vw, 9rem); letter-spacing: 0.04em; line-height: 0.95; font-variation-settings: 'HEXP' 30; max-width: none; }
+  .by { margin-top: calc(-1 * var(--space-3)); }
+  .detail { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: start; }
+  .detail .dl > div { grid-template-columns: minmax(0, 180px) minmax(0, 1fr); }
+  .side { position: sticky; top: 104px; display: grid; gap: var(--space-4); padding: clamp(24px, 3vw, 40px); border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-bg-raised); }
+  .side__t { margin-top: var(--space-3); }
+  @media (max-width: 900px) { .detail { grid-template-columns: 1fr; } .side { position: static; } }
+  @media (max-width: 640px) { .detail .dl > div { grid-template-columns: 1fr; } }
+  .cta { display: grid; gap: var(--space-5); justify-items: start; padding: clamp(32px, 6vw, 96px); border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-bg-raised); }
+  .cta h2 { max-width: 16ch; }
+  .dl a { color: var(--color-ion); }
+</style>

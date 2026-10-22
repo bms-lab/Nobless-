@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import SectionIndex from '../../components/SectionIndex.astro';
+import Process from '../../components/Process.astro';
+import { t, langPaths, type Lang } from '../../i18n/strings';
+import { href, site, contactOpen } from '../../lib/content';
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const c = s.company;
+---
+<Base lang={lang} title={s.meta.companyTitle} description={s.meta.companyDesc} path="company/" current="company">
+  <section class="wrap page-head">
+    <span class="label label--aurum">{c.title}</span>
+    <h1 class="title settle">{site.sinceYear ? c.sinceLead(site.sinceYear) : c.lead}</h1>
+  </section>
+
+  <section class="wrap">
+    <div class="facts">
+      <div class="reveal"><span class="label">{c.missionLabel}</span><p>{c.mission}</p></div>
+      <div class="reveal"><span class="label">{c.visionLabel}</span><p>{c.vision}</p></div>
+      <div class="reveal"><span class="label">{c.todayLabel}</span><p>{c.today}</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={1} label={c.chooseLabel} />
+      <p class="lead intro reveal">{c.choose}</p>
+      <Process lang={lang} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={2} label={c.principlesLabel} />
+      <div class="stack reveal">
+        <p class="values">{s.values.map((v) => <span>{v.title}</span>)}</p>
+        <a class="quiet" href={href(lang, 'principles')}>{s.home.commitmentsLink} <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionIndex n={3} label={c.headingLabel} />
+      <div class="stack reveal">
+        <p class="lead heading">{c.heading}</p>
+        <div class="actions">
+          <a class="btn btn--primary" href={href(lang, 'products')}>{s.home.ctaPrimary} <span class="arrow" aria-hidden="true">→</span></a>
+          {contactOpen && <a class="btn" href={href(lang, 'contact')}>{s.home.ctaSecondary}</a>}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .title { max-width: 24ch; font-size: var(--text-h2); line-height: 1.15; }
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--color-line); }
+  .facts > div { display: grid; gap: var(--space-4); align-content: start; padding: var(--space-6) var(--space-5) var(--space-6) 0; }
+  .facts > div + div { border-inline-start: 1px solid var(--color-line); padding-inline-start: var(--space-5); }
+  .facts p { font-size: var(--text-body-lg); line-height: 1.55; }
+  @media (max-width: 860px) { .facts { grid-template-columns: 1fr; } .facts > div + div { border-inline-start: 0; border-top: 1px solid var(--color-line); padding-inline-start: 0; } }
+  .intro { margin-bottom: clamp(40px, 5vw, 72px); max-width: 56ch; }
+  .values { display: flex; flex-wrap: wrap; gap: 0 0.6em; font-size: var(--text-h2); font-weight: 300; line-height: 1.2; }
+  .values span:not(:last-child)::after { content: ' ·'; color: var(--color-text-faint); }
+  .stack { display: grid; gap: var(--space-6); justify-items: start; }
+  .heading { font-size: var(--text-h3); color: var(--color-text); font-weight: 300; max-width: 40ch; }
+</style>

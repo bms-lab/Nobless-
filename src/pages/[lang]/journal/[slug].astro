@@ -1,0 +1,112 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { LANGS, LANG_NAME, t, type Lang } from '../../../i18n/strings';
+import { href, articles, fmtDate, contactOpen } from '../../../lib/content';
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) => articles(lang).map((a) => ({ params: { lang, slug: a.slug }, props: { a } })));
+}
+const lang = Astro.params.lang as Lang;
+const { a } = Astro.props;
+const s = t(lang);
+const j = s.journal;
+const { Content } = a;
+const others = a.available.filter((l) => l !== lang);
+const more = articles(lang).filter((x) => x.slug !== a.slug).slice(0, 2);
+const contentLang = a.isFallback ? 'en' : undefined;
+---
+<Base lang={lang} title={`${a.title} | NOBLESS Journal`} description={a.excerpt} path={`journal/${a.slug}/`} current="journal" noindex={a.isFallback}>
+  <div class="progress" aria-hidden="true"><span data-progress></span></div>
+  <article>
+    <header class="wrap head">
+      <a class="back" href={href(lang, 'journal')}><span class="arrow" aria-hidden="true">←</span> {j.back}</a>
+      <span class="label label--aurum">{j.categories[a.category]}</span>
+      <h1 class="settle" lang={contentLang}>{a.title}</h1>
+      {a.excerpt && <p class="lead" lang={contentLang}>{a.excerpt}</p>}
+      {a.isFallback && <p class="muted">{j.englishOnly}</p>}
+      <dl class="meta">
+        <div><dt class="label">{j.published}</dt><dd><time datetime={a.date}>{fmtDate(a.date, lang)}</time> · {j.minRead(a.minutes)}</dd></div>
+        <div><dt class="label">{j.statusLabel}</dt><dd>{j.statusTags[a.status]}</dd></div>
+        {others.length > 0 && (
+          <div><dt class="label">{j.readIn}</dt><dd class="langs">{others.map((l) => <a href={`/${l}/journal/${a.slug}/`} hreflang={l} lang={l}>{LANG_NAME[l]}</a>)}</dd></div>
+        )}
+      </dl>
+    </header>
+    <div class="wrap layout">
+      {a.headings.length > 1 && (
+        <nav class="toc" aria-label={j.onThisPage}>
+          <p class="label">{j.onThisPage}</p>
+          <ol>{a.headings.map((h) => <li><a href={`#${h.slug}`} data-toc={h.slug}>{h.text}</a></li>)}</ol>
+        </nav>
+      )}
+      <div class="prose article" lang={contentLang} dir={a.isFallback ? 'ltr' : undefined}><Content /></div>
+    </div>
+  </article>
+  <section class="section">
+    <div class="wrap">
+      {more.length > 0 && (
+        <ul class="more">
+          {more.map((m) => (
+            <li><a class="card" href={href(lang, `journal/${m.slug}`)}><span class="label">{fmtDate(m.date, lang)}</span><span class="more__t">{m.title}</span></a></li>
+          ))}
+        </ul>
+      )}
+      <div class="actions">
+        <a class="btn btn--primary" href={href(lang, 'journal')}>{j.back} <span class="arrow" aria-hidden="true">→</span></a>
+        {contactOpen ? <a class="btn" href={href(lang, 'contact')}>{s.home.ctaSecondary}</a> : <a class="btn" href={href(lang, 'products')}>{s.home.ctaPrimary}</a>}
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .progress { position: fixed; inset: 0 0 auto; height: 2px; z-index: 60; pointer-events: none; }
+  .progress span { display: block; height: 100%; width: 100%; background: var(--color-ion); transform-origin: left; transform: scaleX(var(--p, 0)); }
+  [dir='rtl'] .progress span { transform-origin: right; }
+  .head { padding-block: clamp(136px, 17vw, 200px) clamp(40px, 5vw, 72px); display: grid; gap: var(--space-5); justify-items: start; }
+  .head h1 { max-width: 20ch; font-size: var(--text-h1); }
+  .head .lead { max-width: 52ch; }
+  .back { color: var(--color-text-muted); text-decoration: none; display: inline-flex; gap: 8px; width: fit-content; margin-bottom: var(--space-4); }
+  .back:hover { color: var(--color-text); }
+  [dir='rtl'] .back .arrow { transform: scaleX(-1); }
+  .meta { margin: var(--space-5) 0 0; width: 100%; display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-7); padding-top: var(--space-5); border-top: 1px solid var(--color-line); }
+  .meta > div { display: grid; gap: 4px; }
+  .meta dd { margin: 0; color: var(--color-text-muted); }
+  .langs { display: flex; gap: 12px; }
+  .langs a { color: var(--color-ion); text-decoration: none; }
+  .layout { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+  .toc { position: sticky; top: 104px; display: grid; gap: var(--space-4); }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-inline-start: 1px solid var(--color-line); }
+  .toc a { display: block; padding: 6px var(--space-4); margin-inline-start: -1px; border-inline-start: 1px solid transparent; color: var(--color-text-faint); text-decoration: none; font-size: var(--text-small); line-height: 1.45; transition: color var(--dur-fast), border-color var(--dur-fast); }
+  .toc a:hover { color: var(--color-text); }
+  .toc a.is-on { color: var(--color-text); border-color: var(--color-ion); }
+  .layout > .prose:only-child { grid-column: 2; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .toc { display: none; } .layout > .prose:only-child { grid-column: auto; } }
+  .article { padding-bottom: var(--space-6); color: var(--color-text-muted); }
+  .article :global(p:first-child) { font-size: 1.3em; line-height: 1.6; color: var(--color-text); font-weight: 300; }
+  .article :global(h2) { font-size: var(--text-h3); font-weight: 400; color: var(--color-text); margin-top: 1.6em; padding-top: 1.2em; border-top: 1px solid var(--color-line); font-variation-settings: 'HEXP' 0; letter-spacing: 0; }
+  .article :global(strong) { color: var(--color-text); font-weight: 500; }
+  .article :global(ul) { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.6em; }
+  .article :global(li) { position: relative; padding-inline-start: 1.6em; }
+  .article :global(li)::before { content: ''; position: absolute; inset-inline-start: 0; top: 0.85em; width: 0.8em; height: 1px; background: var(--color-ion); }
+  .more { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+  .more__t { font-size: var(--text-h3); }
+</style>
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-progress]');
+  const art = document.querySelector('article');
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc]')];
+  const heads = links.map((l) => document.getElementById(l.dataset.toc!)).filter(Boolean) as HTMLElement[];
+  let f = 0;
+  const update = () => {
+    f = 0;
+    if (bar && art) {
+      const r = art.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
+      bar.style.setProperty('--p', String(p));
+    }
+    let on = 0;
+    heads.forEach((h, i) => { if (h.getBoundingClientRect().top < 140) on = i; });
+    links.forEach((l, i) => l.classList.toggle('is-on', i === on));
+  };
+  addEventListener('scroll', () => { if (!f) f = requestAnimationFrame(update); }, { passive: true });
+  update();
+</script>

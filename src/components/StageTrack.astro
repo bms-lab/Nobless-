@@ -1,0 +1,42 @@
+---
+// Where a product stands: Now / Next / Later. Only the current stage and the one committed next step are named.
+import { t, type Lang } from '../i18n/strings';
+import type { Product } from '../lib/content';
+interface Props { lang: Lang; product: Product }
+const { lang, product } = Astro.props;
+const s = t(lang);
+const ps = s.products;
+const copy = product[lang];
+const now = s.status[product.status as keyof typeof s.status];
+// "where" usually opens with the status itself ("In exploration. ..."); it is shown once, as the title.
+const where = copy.where.startsWith(now) ? copy.where.slice(now.length).replace(/^[.،,]?\s*/, '') : copy.where;
+const rows = [
+  { when: ps.now, title: now, body: where, on: true },
+  { when: ps.nextStage, title: ps.prototype, body: copy.next, on: false },
+  { when: ps.later, title: '', body: ps.laterBody, on: false },
+];
+---
+<ol class="track">
+  {rows.map((r) => (
+    <li class:list={['track__row', { 'is-now': r.on }]}>
+      <span class="track__mark" aria-hidden="true"></span>
+      <span class="label">{r.when}</span>
+      <div class="track__body">
+        {r.title && <p class="track__t">{r.title}</p>}
+        <p class="muted">{r.body}</p>
+      </div>
+    </li>
+  ))}
+</ol>
+<style>
+  .track { list-style: none; margin: 0; padding: 0; display: grid; position: relative; }
+  .track::before { content: ''; position: absolute; inset-inline-start: 5px; top: 14px; bottom: 14px; width: 1px; background: linear-gradient(to bottom, var(--color-ion), var(--color-line-strong) 45%, transparent); }
+  .track__row { display: grid; grid-template-columns: 11px minmax(80px, 110px) minmax(0, 1fr); gap: var(--space-4); align-items: baseline; padding-block: var(--space-4); }
+  .track__mark { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--color-line-strong); background: var(--color-bg-raised); position: relative; top: 1px; align-self: start; margin-top: 6px; }
+  .is-now .track__mark { background: var(--color-ion); border-color: var(--color-ion); animation: pulse 2.6s ease-in-out infinite; }
+  .is-now .label { color: var(--color-ion); }
+  .track__row:last-child .track__mark { border-style: dashed; }
+  .track__body { display: grid; gap: 4px; }
+  .track__t { font-size: 1.05rem; font-weight: 500; }
+  @media (max-width: 520px) { .track__row { grid-template-columns: 11px minmax(0, 1fr); } .track__row .label { grid-column: 2; } .track__body { grid-column: 2; } }
+</style>
