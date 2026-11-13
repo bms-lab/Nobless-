@@ -1,0 +1,35 @@
+{
+  "redirects": [
+    {
+      "source": "/en/products/nobeon",
+      "destination": "/en/products/lymi/",
+      "permanent": true
+    },
+    {
+      "source": "/en/products/nobeon/",
+      "destination": "/en/products/lymi/",
+      "permanent": true
+    },
+    {
+      "source": "/fr/products/nobeon",
+      "destination": "/fr/products/lymi/",
+      "permanent": true
+    },
+    {
+      "source": "/fr/products/nobeon/",
+      "destination": "/fr/products/lymi/",
+      "permanent": true
+    },
+    {
+      "source": "/ar/products/nobeon",
+      "destination": "/ar/products/lymi/",
+      "permanent": true
+    },
+    {
+      "source": "/ar/products/nobeon/",
+      "destination": "/ar/products/lymi/",
+      "permanent": true
+    }
+  ],
+  "trailingSlash": true
+}
