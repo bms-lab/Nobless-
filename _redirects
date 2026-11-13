@@ -1,2 +1,4 @@
 /about/*  /en/company/  301
 /:lang/about/  /:lang/company/  301
+/products/nobeon/  /en/products/lymi/  301!
+/:lang/products/nobeon/  /:lang/products/lymi/  301!
