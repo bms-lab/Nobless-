@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" fill="none">
+<defs>
+  <linearGradient id="terrain" x1="330" y1="140" x2="1290" y2="1030" gradientUnits="userSpaceOnUse"><stop stop-color="#f4f4f1"/><stop offset=".34" stop-color="#858585"/><stop offset=".68" stop-color="#292929"/><stop offset="1" stop-color="#050505"/></linearGradient>
+  <radialGradient id="light" cx="0" cy="0" r="1" gradientTransform="matrix(720 390 -570 1050 850 250)" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".82"/><stop offset=".46" stop-color="#aaa" stop-opacity=".16"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></radialGradient>
+  <filter id="grain" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 .12"/></feComponentTransfer><feBlend in="SourceGraphic" mode="soft-light"/></filter>
+  <clipPath id="clip"><path d="M0 820 190 700 330 745 500 520 640 600 820 290 950 370 1110 170 1270 290 1450 120 1600 230V1100H0Z"/></clipPath>
+</defs>
+<rect width="1600" height="1100" fill="#080808"/>
+<g clip-path="url(#clip)">
+ <path d="M0 820 190 700 330 745 500 520 640 600 820 290 950 370 1110 170 1270 290 1450 120 1600 230V1100H0Z" fill="url(#terrain)"/>
+ <path d="M0 820 190 700 330 745 500 520 640 600 820 290 950 370 1110 170 1270 290 1450 120 1600 230V1100H0Z" fill="url(#light)"/>
+ <g stroke="#fff" stroke-opacity=".48" stroke-width="1.35">
+  <path d="M-100 910Q160 710 345 790T690 625 1010 420 1350 390 1700 160"/>
+  <path d="M-100 940Q160 740 345 820T690 655 1010 450 1350 420 1700 190"/>
+  <path d="M-100 970Q160 770 345 850T690 685 1010 480 1350 450 1700 220"/>
+  <path d="M-100 1000Q160 800 345 880T690 715 1010 510 1350 480 1700 250"/>
+  <path d="M-100 1030Q160 830 345 910T690 745 1010 540 1350 510 1700 280"/>
+  <path d="M-100 1060Q160 860 345 940T690 775 1010 570 1350 540 1700 310"/>
+  <path d="M-100 1090Q160 890 345 970T690 805 1010 600 1350 570 1700 340"/>
+  <path d="M100 730Q310 650 420 560T710 390 880 260 1070 120"/>
+  <path d="M130 760Q340 680 450 590T740 420 910 290 1100 150"/>
+  <path d="M160 790Q370 710 480 620T770 450 940 320 1130 180"/>
+  <path d="M190 820Q400 740 510 650T800 480 970 350 1160 210"/>
+  <path d="M220 850Q430 770 540 680T830 510 1000 380 1190 240"/>
+  <path d="M250 880Q460 800 570 710T860 540 1030 410 1220 270"/>
+ </g>
+ <g fill="#fff" opacity=".22" filter="url(#grain)"><rect width="1600" height="1100"/></g>
+</g>
+<path d="M0 0H1600V1100H0Z" fill="url(#light)" opacity=".16"/>
+</svg>
