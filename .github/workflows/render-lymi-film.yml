@@ -2,7 +2,7 @@ name: Render LYMI product film
 
 on:
   push:
-    branches: [nobless-redesign]
+    branches: [nobless-redesign, main]
     paths:
       - 'scripts/render_lymi_film.py'
       - '.github/workflows/render-lymi-film.yml'
@@ -19,7 +19,7 @@ jobs:
       - name: Check out redesign branch
         uses: actions/checkout@v4
         with:
-          ref: nobless-redesign
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
       - name: Install rendering dependencies
         run: |
@@ -40,5 +40,5 @@ jobs:
             echo "No video changes to commit."
           else
             git commit -m "Add generated LYMI product film"
-            git push origin HEAD:nobless-redesign
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
