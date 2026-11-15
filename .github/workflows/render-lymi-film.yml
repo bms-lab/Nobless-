@@ -1,0 +1,44 @@
+name: Render LYMI product film
+
+on:
+  push:
+    branches: [nobless-redesign]
+    paths:
+      - 'scripts/render_lymi_film.py'
+      - '.github/workflows/render-lymi-film.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out redesign branch
+        uses: actions/checkout@v4
+        with:
+          ref: nobless-redesign
+          fetch-depth: 0
+      - name: Install rendering dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --upgrade pip
+          python -m pip install pillow numpy
+      - name: Render 1080p LYMI film
+        run: |
+          mkdir -p media
+          python scripts/render_lymi_film.py --output media/lymi-product-film.mp4
+      - name: Commit generated film
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add media/lymi-product-film.mp4
+          if git diff --cached --quiet; then
+            echo "No video changes to commit."
+          else
+            git commit -m "Add generated LYMI product film"
+            git push origin HEAD:nobless-redesign
+          fi
